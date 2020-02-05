@@ -1,3 +1,4 @@
+#include <objects/cube.h>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <glm.hpp>
@@ -8,24 +9,16 @@
 #pragma comment(lib, "glew32.lib")
 
 
-#include "Shader.h"
+//#include "Shader.h"
 
-Shader* simpleShader;
+gamo::Cube* cube = gamo::Cube::colored();
+
+gamo::Shader* simpleShader;
+glm::mat4 mvp;
 
 glm::ivec2 screenSize;
 float rotation;
 int lastTime;
-
-class Vertex
-{
-public:
-	glm::vec3 position;
-	glm::vec4 color;
-	Vertex(const glm::vec3 &position, const glm::vec4 &color) : position(position), color(color) {}
-};
-
-
-
 
 #ifdef WIN32
 void GLAPIENTRY onDebug(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
@@ -43,10 +36,14 @@ void init()
 	glEnable(GL_BLEND);
 	glClearColor(1, 0.7f, 0.3f, 1.0f);
 
-	simpleShader = new Shader("simple");
+	simpleShader = new gamo::Shader();
+	simpleShader->initFromFiles("simple.vs", "simple.fs", gamo::AttribArray::p3c4("a_position", "a_color"), {
+		new gamo::Matrix4Uniform("modelViewProjectionMatrix", []() { return mvp; }),
+		new gamo::FloatUniform("time", []() { return lastTime / 1000.0f; })
+	});
 
-	glEnableVertexAttribArray(0);							// we gebruiken vertex attribute 0
-	glEnableVertexAttribArray(1);							// en vertex attribute 1
+	//glEnableVertexAttribArray(0);							// we gebruiken vertex attribute 0
+	//glEnableVertexAttribArray(1);							// en vertex attribute 1
 
 	if (glDebugMessageCallback)
 	{
@@ -64,23 +61,27 @@ void display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-	glm::mat4 mvp = glm::perspective(80.0f, screenSize.x / (float)screenSize.y, 0.01f, 100.0f);		//begin met een perspective matrix
+	mvp = glm::perspective(80.0f, screenSize.x / (float)screenSize.y, 0.01f, 100.0f);		//begin met een perspective matrix
 	mvp *= glm::lookAt(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));					//vermenigvuldig met een lookat
 	mvp = glm::translate(mvp, glm::vec3(0, 0, -1));													//verplaats de camera gewoon naar achter
 	mvp = glm::rotate(mvp, rotation, glm::vec3(0, 1, 0));											//roteer het object een beetje
-	simpleShader->use();
-	simpleShader->setUniform("modelViewProjectionMatrix", mvp);
-	simpleShader->setUniform("time", lastTime / 1000.0f);
+	//simpleShader->use();
+	//simpleShader->setUniform("modelViewProjectionMatrix", mvp);
+	//simpleShader->setUniform("time", lastTime / 1000.0f);
 
-	Vertex vertices[] = {
-		Vertex(glm::vec3(-1, -1, 0), glm::vec4(1, 0, 0,1)),
-		Vertex(glm::vec3(1, -1, 0), glm::vec4(0, 1, 0,1)),
-		Vertex(glm::vec3(-1, 1, 0), glm::vec4(0, 0, 1,1)),
+	gamo::Vertex vertices[] = {
+		gamo::VertexP3C4(glm::vec3(-1, -1, 0), glm::vec4(1, 0, 0,1)),
+		gamo::VertexP3C4(glm::vec3(1, -1, 0), glm::vec4(0, 1, 0,1)),
+		gamo::VertexP3C4(glm::vec3(-1, 1, 0), glm::vec4(0, 0, 1,1)),
 	};
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(Vertex), vertices);									//geef aan dat de posities op deze locatie zitten
-	glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(Vertex), &vertices[0].color);					//geef aan dat de kleuren op deze locatie zitten
-	glDrawArrays(GL_TRIANGLES, 0, 3);																//en tekenen :)
+	//glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(Vertex), vertices);									//geef aan dat de posities op deze locatie zitten
+	//glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(Vertex), &vertices[0].color);					//geef aan dat de kleuren op deze locatie zitten
+	//glDrawArrays(GL_TRIANGLES, 0, 3);																//en tekenen :)
+
+	
+	cube->build();
+	cube->draw(simpleShader);
 
 	glutSwapBuffers();
 }

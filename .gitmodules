@@ -1,0 +1,3 @@
+[submodule "libs/gamo"]
+	path = libs/gamo
+	url = https://github.com/CoenB95/Gamo-CPP
