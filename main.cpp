@@ -12,10 +12,10 @@
 
 #include "Shader.h"
 
-gamo::Cube* cube = gamo::Cube::colored();
+gamo::GameObject<gamo::VertexP3C4>* cube = gamo::Cubes::colored();
 
 Shader* simpleShader2;
-gamo::Shader* simpleShader;
+gamo::Shader<gamo::VertexP3C4>* simpleShader;
 glm::mat4 mvp;
 
 glm::ivec2 screenSize;
@@ -40,10 +40,10 @@ void init()
 
 	simpleShader2 = new Shader("simple");
 
-	simpleShader = new gamo::Shader();
-	simpleShader->initFromFiles("simple.vs", "simple.fs", gamo::AttribArray::p3c4("a_position", "a_color"), {
+	simpleShader = new gamo::Shader<gamo::VertexP3C4>();
+	simpleShader->initFromFiles("simple.vs", "simple.fs", gamo::AttribArrays::p3c4("a_position", "a_color"), {
 		new gamo::Matrix4Uniform("modelViewProjectionMatrix", []() {
-			return mvp; }),
+			return mvp * simpleShader->modelMatrix; }),
 		new gamo::FloatUniform("time", []() { return lastTime / 1000.0f; })
 	});
 
@@ -62,53 +62,15 @@ void init()
 	cube->build();
 }
 
-class Vertef
-{
-public:
-	glm::vec3 position;
-	glm::vec4 color;
-	Vertef(const glm::vec3& position, const glm::vec4& color) : position(position), color(color) {}
-};
-
-void display()
-{
+void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	mvp = glm::perspective(80.0f, screenSize.x / (float)screenSize.y, 0.01f, 100.0f);		//begin met een perspective matrix
 	mvp *= glm::lookAt(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));					//vermenigvuldig met een lookat
-	mvp = glm::translate(mvp, glm::vec3(0, 0, -1));													//verplaats de camera gewoon naar achter
-	mvp = glm::rotate(mvp, rotation, glm::vec3(0, 1, 0));											//roteer het object een beetje
-
-	/*simpleShader2->use();
-	simpleShader2->setUniform("modelViewProjectionMatrix", mvp);
-	simpleShader2->setUniform("time", lastTime / 1000.0f);*/
+	//mvp = glm::translate(mvp, glm::vec3(0, 0, 1));													//verplaats de camera gewoon naar achter
+	//mvp = glm::rotate(mvp, rotation, glm::vec3(0, 1, 0));											//roteer het object een beetje
 
 	simpleShader->use();
-	//cube->draw(simpleShader);
-	glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(mvp));
-	glUniform1i(-1, lastTime / 1000.0f);
-
-	/*std::vector<Vertef> vertices = {
-		Vertef(glm::vec3(-1, -1, 0), glm::vec4(1, 0, 0,1)),
-		Vertef(glm::vec3(1, -1, 0), glm::vec4(0, 1, 0,1)),
-		Vertef(glm::vec3(-1, 1, 0), glm::vec4(0, 0, 1,1)),
-	};*/
-
-	std::vector<gamo::Vertex> vertices = {
-		gamo::VertexP3C4(glm::vec3(-1, -1, 0), glm::vec4(1, 0, 0,1)),
-		gamo::VertexP3C4(glm::vec3(1, -1, 0), glm::vec4(0, 1, 0,1)),
-		gamo::VertexP3C4(glm::vec3(-1, 1, 0), glm::vec4(0, 0, 1,1)),
-	};
-
-	/*glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(gamo::VertexP3C4), (float*)(&cube->vertices[0]));
-	glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(gamo::VertexP3C4), (float*)(&cube->vertices[0]) + 3);*/
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(gamo::VertexP3C4), (float*)(&vertices[0]));
-	glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(gamo::VertexP3C4), (float*)(&vertices[0]) + 3);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-
-	/*simpleShader->use();
-	cube->draw(simpleShader);*/
+	cube->draw(simpleShader);
 
 	glutSwapBuffers();
 }
@@ -133,7 +95,7 @@ void update()
 	
 	
 	rotation += elapsed / 1000.0f;
-
+	cube->update(0.013);
 
 
 	glutPostRedisplay();
