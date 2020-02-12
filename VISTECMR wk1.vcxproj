@@ -53,12 +53,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\libs\glew-2.1.0\include;$(ProjectDir)\libs\freeglut\include;$(ProjectDir)\libs\gamo\include\glm\glm;$(ProjectDir)\libs\gamo\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\libs\glew-2.1.0\include;$(ProjectDir)\libs\freeglut\include;$(ProjectDir)\libs\gamo\include;$(ProjectDir)\libs\gamo\include\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)\libs\glew-2.1.0\lib\Release\Win32;$(ProjectDir)\libs\freeglut\lib;%(AdditionalIncludeDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)\libs\glew-2.1.0\lib\Release\Win32;$(ProjectDir)\libs\freeglut\lib;$(OutDir);%(AdditionalIncludeDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Gamo-CPP.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -85,6 +86,16 @@
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\shaders\multitex.fs" />
+    <None Include="res\shaders\multitex.vs" />
+    <None Include="res\shaders\simple.fs" />
+    <None Include="res\shaders\simple.vs" />
+    <None Include="res\shaders\texture.fs" />
+    <None Include="res\shaders\texture.vs" />
+    <None Include="res\shaders\textureanim.fs" />
+    <None Include="res\shaders\textureanim.vs" />
+    <None Include="res\shaders\vertexanim.fs" />
+    <None Include="res\shaders\vertexanim.vs" />
     <None Include="simple.fs" />
     <None Include="simple.vs" />
   </ItemGroup>

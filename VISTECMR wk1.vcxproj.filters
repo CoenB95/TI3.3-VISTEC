@@ -25,6 +25,36 @@
   <ItemGroup>
     <None Include="simple.vs" />
     <None Include="simple.fs" />
+    <None Include="res\shaders\multitex.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\multitex.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\simple.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\simple.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\texture.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\texture.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\textureanim.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\textureanim.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\vertexanim.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\vertexanim.vs">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
