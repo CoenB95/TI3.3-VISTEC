@@ -18,9 +18,24 @@ std::map<std::string, gamo::Texture*> gamo::Texture::cache;
 gamo::GameObject<gamo::VertexP3C4>* cube;
 gamo::GameObject<gamo::VertexP3N3T2>* cube2;
 
-gamo::Shader<gamo::VertexP3C4>* shader1;
-gamo::Shader<gamo::VertexP3N3T2>* shader2;
-gamo::Shader<gamo::VertexP3C4>* shader3;
+// Color shaders.
+std::vector<gamo::Shader<gamo::VertexP3C4>*> colorShaders;
+int colorShaderIndex = 0;
+std::vector<std::string> colorShaderNames = {
+	"simple"
+};
+
+// Texture shaders.
+std::vector<gamo::Shader<gamo::VertexP3N3T2>*> textureShaders;
+int textureShaderIndex = 0;
+std::vector<std::string> textureShaderNames = {
+	"res/shaders/texture",
+	"res/shaders/simple",
+	"res/shaders/textureanim",
+	"res/shaders/vertexanim",
+	"res/shaders/multitex"
+};
+
 glm::mat4 projectionMatrix;
 glm::mat4 viewMatrix;
 
@@ -47,23 +62,29 @@ void init()
 	cube = gamo::Cubes::colored();
 	cube2 = gamo::Cubes::textured();
 
-	shader1 = new gamo::Shader<gamo::VertexP3C4>();
-	shader1->initFromFiles("simple.vs", "simple.fs", gamo::AttribArrays::p3c4("a_position", "a_color"), {
-		new gamo::Matrix4Uniform("modelViewProjectionMatrix", []() { return projectionMatrix * viewMatrix * shader1->modelMatrix; }),
-		new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })
-	});
+	for (std::string shaderName : colorShaderNames) {
+		gamo::Shader<gamo::VertexP3C4>* shap = new gamo::Shader<gamo::VertexP3C4>();
+		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs", gamo::AttribArrays::p3c4("a_position", "a_color"), {
+			new gamo::Matrix4Uniform("modelViewProjectionMatrix", [shap]() { return projectionMatrix * viewMatrix * shap->modelMatrix; }),
+			new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })
+			});
+		colorShaders.push_back(shap);
+	}
 
-	shader2 = new gamo::Shader<gamo::VertexP3N3T2>();
-	shader2->initFromFiles("res/shaders/textureanim.vs", "res/shaders/textureanim.fs", gamo::AttribArrays::p3n3t2("a_position", "a_normal", "a_texcoord"), {
-		new gamo::Matrix4Uniform("modelMatrix", []() { return shader2->modelMatrix; }),
-		new gamo::Matrix4Uniform("viewMatrix", []() { return viewMatrix; }),
-		new gamo::Matrix4Uniform("projectionMatrix", []() { return projectionMatrix; }),
-		new gamo::IntegerUniform("s_texture", []() { return 0; }),
-		new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })
-	});
+	for (std::string shaderName : textureShaderNames) {
+		gamo::Shader<gamo::VertexP3N3T2>* shap = new gamo::Shader<gamo::VertexP3N3T2>();
+		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs", gamo::AttribArrays::p3n3t2("a_position", "a_normal", "a_texcoord"), {
+			new gamo::Matrix4Uniform("modelMatrix", [shap]() { return shap->modelMatrix; }),
+			new gamo::Matrix4Uniform("viewMatrix", []() { return viewMatrix; }),
+			new gamo::Matrix4Uniform("projectionMatrix", []() { return projectionMatrix; }),
+			new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(viewMatrix * shap->modelMatrix))); }),
+			new gamo::IntegerUniform("s_texture", []() { return 0; }),
+			new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })
+			});
+		textureShaders.push_back(shap);
+	}
 
-	if (glDebugMessageCallback)
-	{
+	if (glDebugMessageCallback) {
 		glDebugMessageCallback(&onDebug, NULL);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 		glEnable(GL_DEBUG_OUTPUT);
@@ -73,20 +94,21 @@ void init()
 	lastTimeMillis = glutGet(GLUT_ELAPSED_TIME);
 	cube->build();
 	cube2->build();
-	cube2->position = glm::vec3(0.1, 0, 0);
+	cube2->position = glm::vec3(1, 0, 0);
 }
 
 void display() {
 	glViewport(0, 0, screenSize.x, screenSize.y);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	projectionMatrix = glm::perspective(80.0f, screenSize.x / (float)screenSize.y, 0.01f, 100.0f);
 	viewMatrix = glm::lookAt(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
-	shader1->use();
-	cube->draw(shader1);
+	colorShaders[colorShaderIndex]->use();
+	cube->draw(colorShaders[colorShaderIndex]);
 
-	shader2->use();
-	cube2->draw(shader2);
+	textureShaders[textureShaderIndex]->use();
+	cube2->draw(textureShaders[textureShaderIndex]);
 
 	glutSwapBuffers();
 }
@@ -102,6 +124,12 @@ void keyboard(unsigned char key, int x, int y)
 {
 	if (key == VK_ESCAPE)
 		glutLeaveMainLoop();
+
+	if (key == 'c')
+		colorShaderIndex = (colorShaderIndex + 1) % colorShaders.size();
+
+	if (key == 't')
+		textureShaderIndex = (textureShaderIndex + 1) % textureShaders.size();
 }
 
 void update()
