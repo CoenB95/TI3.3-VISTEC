@@ -94,7 +94,7 @@ void init()
 	lastTimeMillis = glutGet(GLUT_ELAPSED_TIME);
 	cube->build();
 	cube2->build();
-	cube2->position = glm::vec3(1, 0, 0);
+	cube2->position = glm::vec3(1.5, 0, 0);
 }
 
 void display() {
@@ -102,7 +102,7 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	projectionMatrix = glm::perspective(80.0f, screenSize.x / (float)screenSize.y, 0.01f, 100.0f);
-	viewMatrix = glm::lookAt(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	viewMatrix = glm::lookAt(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, -1, 0));
 
 	colorShaders[colorShaderIndex]->use();
 	cube->draw(colorShaders[colorShaderIndex]);
