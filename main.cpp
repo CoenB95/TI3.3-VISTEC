@@ -28,6 +28,10 @@ std::vector<std::string> colorShaderNames = {
 // Texture shaders.
 std::vector<gamo::Shader<gamo::VertexP3N3T2>*> textureShaders;
 int textureShaderIndex = 0;
+
+// Wireframe (bool)
+bool wireFrame = false;
+
 std::vector<std::string> textureShaderNames = {
 	"res/shaders/texture",
 	"res/shaders/simple",
@@ -60,7 +64,7 @@ void init()
 	glClearColor(1, 0.7f, 0.3f, 1.0f);
 
 	cube = gamo::Cubes::colored();
-	cube2 = gamo::Cubes::textured();
+	cube2 = gamo::Cubes::mcPumpkin();
 
 	for (std::string shaderName : colorShaderNames) {
 		gamo::Shader<gamo::VertexP3C4>* shap = new gamo::Shader<gamo::VertexP3C4>();
@@ -105,9 +109,11 @@ void display() {
 	viewMatrix = glm::lookAt(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, -1, 0));
 
 	colorShaders[colorShaderIndex]->use();
+	colorShaders[colorShaderIndex]->wireframe = wireFrame;
 	cube->draw(colorShaders[colorShaderIndex]);
 
 	textureShaders[textureShaderIndex]->use();
+	textureShaders[textureShaderIndex]->wireframe = wireFrame;
 	cube2->draw(textureShaders[textureShaderIndex]);
 
 	glutSwapBuffers();
@@ -130,6 +136,9 @@ void keyboard(unsigned char key, int x, int y)
 
 	if (key == 't')
 		textureShaderIndex = (textureShaderIndex + 1) % textureShaders.size();
+
+	if (key == 'w')
+		wireFrame = !wireFrame;
 }
 
 void update()
