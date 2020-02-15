@@ -20,9 +20,14 @@ std::map<std::string, gamo::Texture*> gamo::Texture::cache;
 
 // Scene + objects.
 gamo::GameScene scene;
+gamo::ShaderObjectPair<gamo::VertexP3C4>* colored;
 gamo::GameObject<gamo::VertexP3C4>* cube1;
+
+gamo::ShaderObjectPair<gamo::VertexP3N3T2>* textured;
 gamo::GameObject<gamo::VertexP3N3T2>* cube2;
-gamo::GameObject<gamo::VertexP3N3T2>* pane1;
+
+gamo::ShaderObjectPair<gamo::VertexP3N3T2>* toyed;
+gamo::GameObject<gamo::VertexP3N3T2>* cube3;
 
 // Color shaders.
 std::vector<gamo::Shader<gamo::VertexP3C4>*> colorShaders;
@@ -34,18 +39,24 @@ std::vector<std::string> colorShaderNames = {
 // Texture shaders.
 std::vector<gamo::Shader<gamo::VertexP3N3T2>*> textureShaders;
 int textureShaderIndex = 0;
-
-// Wireframe (bool)
-bool wireFrame = false;
-
 std::vector<std::string> textureShaderNames = {
 	"res/shaders/texture",
 	"res/shaders/simple",
 	"res/shaders/textureanim",
 	"res/shaders/vertexanim",
-	"res/shaders/multitex",
+	"res/shaders/multitex"
+};
+
+// Shadertoy shaders (texture 0,0 - 1,1).
+std::vector<gamo::Shader<gamo::VertexP3N3T2>*> toyShaders;
+int toyShaderIndex = 0;
+std::vector<std::string> toyShaderNames = {
+	"res/shaders/texture",
 	"res/shaders/thunder"
 };
+
+// Wireframe (bool)
+bool wireFrame = false;
 
 glm::mat4 projectionMatrix;
 glm::mat4 viewMatrix;
@@ -71,11 +82,18 @@ void init()
 	glClearColor(1, 0.7f, 0.3f, 1.0f);
 
 	scene = gamo::GameScene();
+	colored = new gamo::ShaderObjectPair<gamo::VertexP3C4>(new gamo::GameObject<gamo::VertexP3C4>("coloredGroup"), nullptr);
+	textured = new gamo::ShaderObjectPair<gamo::VertexP3N3T2>(new gamo::GameObject<gamo::VertexP3N3T2>("texturedGroup"), nullptr);
+	toyed = new gamo::ShaderObjectPair<gamo::VertexP3N3T2>(new gamo::GameObject<gamo::VertexP3N3T2>("shadertoyGroup"), nullptr);
+	scene.pairs.push_back(colored);
+	scene.pairs.push_back(textured);
+	scene.pairs.push_back(toyed);
 	cube1 = gamo::Cubes::colored();
 	cube2 = gamo::Cubes::mcGrass();
-	pane1 = gamo::Panes::mcAll();
-	scene.colored->addChildren({ cube1 });
-	scene.textured->addChildren({ cube2, pane1 });
+	cube3 = gamo::Cubes::mcTotal();
+	colored->group->addChild(cube1);
+	textured->group->addChild(cube2);
+	toyed->group->addChild(cube3);
 
 	for (std::string shaderName : colorShaderNames) {
 		gamo::Shader<gamo::VertexP3C4>* shap = new gamo::Shader<gamo::VertexP3C4>();
@@ -99,6 +117,19 @@ void init()
 		textureShaders.push_back(shap);
 	}
 
+	for (std::string shaderName : toyShaderNames) {
+		gamo::Shader<gamo::VertexP3N3T2>* shap = new gamo::Shader<gamo::VertexP3N3T2>();
+		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs", gamo::AttribArrays::p3n3t2("a_position", "a_normal", "a_texcoord"), {
+			new gamo::Matrix4Uniform("modelMatrix", [shap]() { return shap->modelMatrix; }),
+			new gamo::Matrix4Uniform("viewMatrix", []() { return viewMatrix; }),
+			new gamo::Matrix4Uniform("projectionMatrix", []() { return projectionMatrix; }),
+			new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(viewMatrix * shap->modelMatrix))); }),
+			new gamo::IntegerUniform("s_texture", []() { return 0; }),
+			new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })
+			});
+		toyShaders.push_back(shap);
+	}
+
 	if (glDebugMessageCallback) {
 		glDebugMessageCallback(&onDebug, NULL);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
@@ -109,7 +140,7 @@ void init()
 	lastTimeMillis = glutGet(GLUT_ELAPSED_TIME);
 	
 	cube2->position = glm::vec3(1.5, 0, 0);
-	pane1->position = glm::vec3(-1.5, 0, 0);
+	cube3->position = glm::vec3(-1.5, 0, 0);
 }
 
 void display() {
@@ -119,10 +150,12 @@ void display() {
 	projectionMatrix = glm::perspective(80.0f, screenSize.x / (float)screenSize.y, 0.01f, 100.0f);
 	viewMatrix = glm::lookAt(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, -1, 0));
 
-	scene.coloredShader = colorShaders[colorShaderIndex];
-	scene.coloredShader->wireframe = wireFrame;
-	scene.texturedShader = textureShaders[textureShaderIndex];
-	scene.texturedShader->wireframe = wireFrame;
+	colored->shader = colorShaders[colorShaderIndex];
+	colored->shader->wireframe = wireFrame;
+	textured->shader = textureShaders[textureShaderIndex];
+	textured->shader->wireframe = wireFrame;
+	toyed->shader = toyShaders[toyShaderIndex];
+	toyed->shader->wireframe = wireFrame;
 	scene.draw();
 
 	glutSwapBuffers();
@@ -145,6 +178,9 @@ void keyboard(unsigned char key, int x, int y)
 
 	if (key == 't')
 		textureShaderIndex = (textureShaderIndex + 1) % textureShaders.size();
+
+	if (key == 's')
+		toyShaderIndex = (toyShaderIndex + 1) % toyShaders.size();
 
 	if (key == 'w')
 		wireFrame = !wireFrame;
