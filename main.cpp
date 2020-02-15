@@ -7,16 +7,22 @@
 #include <fstream>
 #pragma comment(lib, "glew32.lib")
 
+#include "components/primitivedrawcomponent.h"
 #include "objects/gameobject.h"
 #include "objects/cube.h"
+#include "objects/pane.h"
+#include "scenes/gamescene.h"
 #include "shaders/texture.h"
 
 #include "Shader.h"
 
 std::map<std::string, gamo::Texture*> gamo::Texture::cache;
 
-gamo::GameObject<gamo::VertexP3C4>* cube;
+// Scene + objects.
+gamo::GameScene scene;
+gamo::GameObject<gamo::VertexP3C4>* cube1;
 gamo::GameObject<gamo::VertexP3N3T2>* cube2;
+gamo::GameObject<gamo::VertexP3N3T2>* pane1;
 
 // Color shaders.
 std::vector<gamo::Shader<gamo::VertexP3C4>*> colorShaders;
@@ -37,7 +43,8 @@ std::vector<std::string> textureShaderNames = {
 	"res/shaders/simple",
 	"res/shaders/textureanim",
 	"res/shaders/vertexanim",
-	"res/shaders/multitex"
+	"res/shaders/multitex",
+	"res/shaders/thunder"
 };
 
 glm::mat4 projectionMatrix;
@@ -63,8 +70,12 @@ void init()
 	glEnable(GL_BLEND);
 	glClearColor(1, 0.7f, 0.3f, 1.0f);
 
-	cube = gamo::Cubes::colored();
-	cube2 = gamo::Cubes::mcPumpkin();
+	scene = gamo::GameScene();
+	cube1 = gamo::Cubes::colored();
+	cube2 = gamo::Cubes::mcGrass();
+	pane1 = gamo::Panes::mcAll();
+	scene.colored->addChildren({ cube1 });
+	scene.textured->addChildren({ cube2, pane1 });
 
 	for (std::string shaderName : colorShaderNames) {
 		gamo::Shader<gamo::VertexP3C4>* shap = new gamo::Shader<gamo::VertexP3C4>();
@@ -96,9 +107,9 @@ void init()
 
 	rotation = 0;
 	lastTimeMillis = glutGet(GLUT_ELAPSED_TIME);
-	cube->build();
-	cube2->build();
+	
 	cube2->position = glm::vec3(1.5, 0, 0);
+	pane1->position = glm::vec3(-1.5, 0, 0);
 }
 
 void display() {
@@ -108,13 +119,11 @@ void display() {
 	projectionMatrix = glm::perspective(80.0f, screenSize.x / (float)screenSize.y, 0.01f, 100.0f);
 	viewMatrix = glm::lookAt(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, -1, 0));
 
-	colorShaders[colorShaderIndex]->use();
-	colorShaders[colorShaderIndex]->wireframe = wireFrame;
-	cube->draw(colorShaders[colorShaderIndex]);
-
-	textureShaders[textureShaderIndex]->use();
-	textureShaders[textureShaderIndex]->wireframe = wireFrame;
-	cube2->draw(textureShaders[textureShaderIndex]);
+	scene.coloredShader = colorShaders[colorShaderIndex];
+	scene.coloredShader->wireframe = wireFrame;
+	scene.texturedShader = textureShaders[textureShaderIndex];
+	scene.texturedShader->wireframe = wireFrame;
+	scene.draw();
 
 	glutSwapBuffers();
 }
@@ -147,9 +156,7 @@ void update()
 	int elapsedMillis = timeMillis - lastTimeMillis;
 	lastTimeMillis = timeMillis;
 	
-	//rotation += elapsedMillis / 1000.0f;
-	cube->update(elapsedMillis / 1000.0f);
-	cube2->update(elapsedMillis / 1000.0f);
+	scene.update(elapsedMillis / 1000.0f);
 
 	glutPostRedisplay();
 }

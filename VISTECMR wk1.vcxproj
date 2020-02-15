@@ -94,6 +94,8 @@
     <None Include="res\shaders\texture.vs" />
     <None Include="res\shaders\textureanim.fs" />
     <None Include="res\shaders\textureanim.vs" />
+    <None Include="res\shaders\thunder.fs" />
+    <None Include="res\shaders\thunder.vs" />
     <None Include="res\shaders\vertexanim.fs" />
     <None Include="res\shaders\vertexanim.vs" />
     <None Include="simple.fs" />

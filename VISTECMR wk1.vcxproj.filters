@@ -55,6 +55,12 @@
     <None Include="res\shaders\vertexanim.vs">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="res\shaders\thunder.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\thunder.vs">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
