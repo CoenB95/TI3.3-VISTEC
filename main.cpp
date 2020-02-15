@@ -35,7 +35,8 @@ int colorShaderIndex = 0;
 std::vector<std::string> colorShaderNames = {
 	"res/shaders/p3n3c4-simple",
 	"res/shaders/p3n3c4-specular",
-	"res/shaders/p3n3c4-specularcolor"
+	"res/shaders/p3n3c4-specularcolor",
+	"res/shaders/p3n3c4-gray"
 };
 
 // Texture shaders.
@@ -45,6 +46,7 @@ std::vector<std::string> textureShaderNames = {
 	"res/shaders/p3n3t2-simple",
 	"res/shaders/p3n3t2-specular",
 	"res/shaders/p3n3t2-speculartex",
+	"res/shaders/p3n3t2-gray",
 	"res/shaders/p3n3t2-textureanim",
 	"res/shaders/p3n3t2-vertexanim",
 	"res/shaders/p3n3t2-multitex"
@@ -112,9 +114,7 @@ void init()
 	for (std::string shaderName : textureShaderNames) {
 		gamo::Shader<gamo::VertexP3N3T2>* shap = new gamo::Shader<gamo::VertexP3N3T2>();
 		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs", gamo::AttribArrays::p3n3t2("a_position", "a_normal", "a_texcoord"), {
-			new gamo::Matrix4Uniform("modelMatrix", [shap]() { return shap->modelMatrix; }),
-			new gamo::Matrix4Uniform("viewMatrix", []() { return viewMatrix; }),
-			new gamo::Matrix4Uniform("projectionMatrix", []() { return projectionMatrix; }),
+			new gamo::Matrix4Uniform("modelViewProjectionMatrix", [shap]() { return projectionMatrix * viewMatrix * shap->modelMatrix; }),
 			new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(viewMatrix * shap->modelMatrix))); }),
 			new gamo::IntegerUniform("s_texture", []() { return 0; }),
 			new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })
@@ -125,9 +125,7 @@ void init()
 	for (std::string shaderName : toyShaderNames) {
 		gamo::Shader<gamo::VertexP3N3T2>* shap = new gamo::Shader<gamo::VertexP3N3T2>();
 		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs", gamo::AttribArrays::p3n3t2("a_position", "a_normal", "a_texcoord"), {
-			new gamo::Matrix4Uniform("modelMatrix", [shap]() { return shap->modelMatrix; }),
-			new gamo::Matrix4Uniform("viewMatrix", []() { return viewMatrix; }),
-			new gamo::Matrix4Uniform("projectionMatrix", []() { return projectionMatrix; }),
+			new gamo::Matrix4Uniform("modelViewProjectionMatrix", [shap]() { return projectionMatrix * viewMatrix * shap->modelMatrix; }),
 			new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(viewMatrix * shap->modelMatrix))); }),
 			new gamo::IntegerUniform("s_texture", []() { return 0; }),
 			new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })

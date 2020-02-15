@@ -89,12 +89,16 @@
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\shaders\p3n3c4-gray.fs" />
+    <None Include="res\shaders\p3n3c4-gray.vs" />
     <None Include="res\shaders\p3n3c4-simple.fs" />
     <None Include="res\shaders\p3n3c4-simple.vs" />
     <None Include="res\shaders\p3n3c4-specular.fs" />
     <None Include="res\shaders\p3n3c4-specular.vs" />
     <None Include="res\shaders\p3n3c4-specularcolor.fs" />
     <None Include="res\shaders\p3n3c4-specularcolor.vs" />
+    <None Include="res\shaders\p3n3t2-gray.fs" />
+    <None Include="res\shaders\p3n3t2-gray.vs" />
     <None Include="res\shaders\p3n3t2-multitex.fs" />
     <None Include="res\shaders\p3n3t2-multitex.vs" />
     <None Include="res\shaders\p3n3t2-simple.fs" />

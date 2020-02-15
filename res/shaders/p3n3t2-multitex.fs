@@ -1,8 +1,10 @@
+#version 330
+
 uniform sampler2D s_texture;
 uniform float time;
-in vec2 texCoord;
-in vec3 color;
 
+in vec3 normal;
+in vec2 texCoord;
 
 void main()
 {

@@ -88,5 +88,17 @@
     <None Include="res\shaders\p3n3t2-speculartex.fs">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="res\shaders\p3n3c4-gray.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3c4-gray.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3t2-gray.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3t2-gray.vs">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
