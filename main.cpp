@@ -20,8 +20,8 @@ std::map<std::string, gamo::Texture*> gamo::Texture::cache;
 
 // Scene + objects.
 gamo::GameScene scene;
-gamo::ShaderObjectPair<gamo::VertexP3C4>* colored;
-gamo::GameObject<gamo::VertexP3C4>* cube1;
+gamo::ShaderObjectPair<gamo::VertexP3N3C4>* colored;
+gamo::GameObject<gamo::VertexP3N3C4>* cube1;
 
 gamo::ShaderObjectPair<gamo::VertexP3N3T2>* textured;
 gamo::GameObject<gamo::VertexP3N3T2>* cube2;
@@ -30,29 +30,33 @@ gamo::ShaderObjectPair<gamo::VertexP3N3T2>* toyed;
 gamo::GameObject<gamo::VertexP3N3T2>* cube3;
 
 // Color shaders.
-std::vector<gamo::Shader<gamo::VertexP3C4>*> colorShaders;
+std::vector<gamo::Shader<gamo::VertexP3N3C4>*> colorShaders;
 int colorShaderIndex = 0;
 std::vector<std::string> colorShaderNames = {
-	"simple"
+	"res/shaders/p3n3c4-simple",
+	"res/shaders/p3n3c4-specular",
+	"res/shaders/p3n3c4-specularcolor"
 };
 
 // Texture shaders.
 std::vector<gamo::Shader<gamo::VertexP3N3T2>*> textureShaders;
 int textureShaderIndex = 0;
 std::vector<std::string> textureShaderNames = {
-	"res/shaders/texture",
-	"res/shaders/simple",
-	"res/shaders/textureanim",
-	"res/shaders/vertexanim",
-	"res/shaders/multitex"
+	"res/shaders/p3n3t2-simple",
+	"res/shaders/p3n3t2-specular",
+	"res/shaders/p3n3t2-speculartex",
+	"res/shaders/p3n3t2-textureanim",
+	"res/shaders/p3n3t2-vertexanim",
+	"res/shaders/p3n3t2-multitex"
 };
 
 // Shadertoy shaders (texture 0,0 - 1,1).
 std::vector<gamo::Shader<gamo::VertexP3N3T2>*> toyShaders;
 int toyShaderIndex = 0;
 std::vector<std::string> toyShaderNames = {
-	"res/shaders/texture",
-	"res/shaders/thunder"
+	"res/shaders/p3n3t2-simple",
+	"res/shaders/p3n3c4-specular",
+	"res/shaders/p3n3t2-thunder"
 };
 
 // Wireframe (bool)
@@ -82,7 +86,7 @@ void init()
 	glClearColor(1, 0.7f, 0.3f, 1.0f);
 
 	scene = gamo::GameScene();
-	colored = new gamo::ShaderObjectPair<gamo::VertexP3C4>(new gamo::GameObject<gamo::VertexP3C4>("coloredGroup"), nullptr);
+	colored = new gamo::ShaderObjectPair<gamo::VertexP3N3C4>(new gamo::GameObject<gamo::VertexP3N3C4>("coloredGroup"), nullptr);
 	textured = new gamo::ShaderObjectPair<gamo::VertexP3N3T2>(new gamo::GameObject<gamo::VertexP3N3T2>("texturedGroup"), nullptr);
 	toyed = new gamo::ShaderObjectPair<gamo::VertexP3N3T2>(new gamo::GameObject<gamo::VertexP3N3T2>("shadertoyGroup"), nullptr);
 	scene.pairs.push_back(colored);
@@ -96,9 +100,10 @@ void init()
 	toyed->group->addChild(cube3);
 
 	for (std::string shaderName : colorShaderNames) {
-		gamo::Shader<gamo::VertexP3C4>* shap = new gamo::Shader<gamo::VertexP3C4>();
-		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs", gamo::AttribArrays::p3c4("a_position", "a_color"), {
+		gamo::Shader<gamo::VertexP3N3C4>* shap = new gamo::Shader<gamo::VertexP3N3C4>();
+		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs", gamo::AttribArrays::p3n3c4("a_position", "a_normal", "a_color"), {
 			new gamo::Matrix4Uniform("modelViewProjectionMatrix", [shap]() { return projectionMatrix * viewMatrix * shap->modelMatrix; }),
+			new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(viewMatrix * shap->modelMatrix))); }),
 			new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })
 			});
 		colorShaders.push_back(shap);

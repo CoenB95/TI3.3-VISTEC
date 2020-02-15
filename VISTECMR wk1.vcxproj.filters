@@ -23,48 +23,70 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="simple.vs" />
-    <None Include="simple.fs" />
-    <None Include="res\shaders\multitex.fs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\shaders\multitex.vs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\shaders\simple.fs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\shaders\simple.vs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\shaders\texture.fs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\shaders\texture.vs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\shaders\textureanim.fs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\shaders\textureanim.vs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\shaders\vertexanim.fs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\shaders\vertexanim.vs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\shaders\thunder.fs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\shaders\thunder.vs">
-      <Filter>Resource Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\shaders\p3n3t2-multitex.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3t2-multitex.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3t2-simple.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3t2-simple.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3t2-specular.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3t2-specular.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3t2-textureanim.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3t2-textureanim.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3t2-thunder.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3t2-thunder.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3t2-vertexanim.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3t2-vertexanim.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3c4-simple.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3c4-simple.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3c4-specular.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3c4-specular.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3t2-speculartex.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3c4-specularcolor.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3c4-specularcolor.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\shaders\p3n3t2-speculartex.fs">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

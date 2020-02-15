@@ -86,23 +86,29 @@
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\multitex.fs" />
-    <None Include="res\shaders\multitex.vs" />
-    <None Include="res\shaders\simple.fs" />
-    <None Include="res\shaders\simple.vs" />
-    <None Include="res\shaders\texture.fs" />
-    <None Include="res\shaders\texture.vs" />
-    <None Include="res\shaders\textureanim.fs" />
-    <None Include="res\shaders\textureanim.vs" />
-    <None Include="res\shaders\thunder.fs" />
-    <None Include="res\shaders\thunder.vs" />
-    <None Include="res\shaders\vertexanim.fs" />
-    <None Include="res\shaders\vertexanim.vs" />
-    <None Include="simple.fs" />
-    <None Include="simple.vs" />
+    <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Shader.h" />
+    <None Include="res\shaders\p3n3c4-simple.fs" />
+    <None Include="res\shaders\p3n3c4-simple.vs" />
+    <None Include="res\shaders\p3n3c4-specular.fs" />
+    <None Include="res\shaders\p3n3c4-specular.vs" />
+    <None Include="res\shaders\p3n3c4-specularcolor.fs" />
+    <None Include="res\shaders\p3n3c4-specularcolor.vs" />
+    <None Include="res\shaders\p3n3t2-multitex.fs" />
+    <None Include="res\shaders\p3n3t2-multitex.vs" />
+    <None Include="res\shaders\p3n3t2-simple.fs" />
+    <None Include="res\shaders\p3n3t2-simple.vs" />
+    <None Include="res\shaders\p3n3t2-specular.fs" />
+    <None Include="res\shaders\p3n3t2-specular.vs" />
+    <None Include="res\shaders\p3n3t2-speculartex.fs" />
+    <None Include="res\shaders\p3n3t2-speculartex.vs" />
+    <None Include="res\shaders\p3n3t2-textureanim.fs" />
+    <None Include="res\shaders\p3n3t2-textureanim.vs" />
+    <None Include="res\shaders\p3n3t2-thunder.fs" />
+    <None Include="res\shaders\p3n3t2-thunder.vs" />
+    <None Include="res\shaders\p3n3t2-vertexanim.fs" />
+    <None Include="res\shaders\p3n3t2-vertexanim.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
