@@ -25,10 +25,20 @@ gamo::GameObject<gamo::VertexP3N3C4>* cube1;
 
 gamo::ShaderObjectPair<gamo::VertexP3N3T2>* textured;
 gamo::GameObject<gamo::VertexP3N3T2>* cube2;
-gamo::GameObject<gamo::VertexP3N3T2>* cube4;
 
 gamo::ShaderObjectPair<gamo::VertexP3N3T2>* toyed;
 gamo::GameObject<gamo::VertexP3N3T2>* cube3;
+
+// Models.
+std::vector<gamo::GameObject<gamo::VertexP3N3T2>*> models;
+int modelIndex = 0;
+std::vector<std::pair<std::string, double>> modelInfos = {
+	{ "res/models/car/honda_jazz.obj", 0.01 },
+	{ "res/models/ship/shipA_OBJ.obj", 0.02 },
+	{ "res/models/normalstuff/normaltest.obj", 0.4 },
+	{ "res/models/normalstuff/normaltest2.obj", 0.4 },
+	{ "res/models/bloemetje/PrimroseP.obj", 1.0 }
+};
 
 // Color shaders.
 std::vector<gamo::Shader<gamo::VertexP3N3C4>*> colorShaders;
@@ -81,8 +91,7 @@ void onDebug(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei len
 	std::cout << message << std::endl;
 }
 
-void init()
-{
+void init() {
 	glewInit();
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -96,17 +105,23 @@ void init()
 	scene.pairs.push_back(textured);
 	scene.pairs.push_back(toyed);
 	cube1 = gamo::Cubes::colored();
-	cube2 = gamo::Cubes::mcGrass();
-	cube3 = gamo::Cubes::mcTotal();
+	cube1->position = glm::vec3(0, -1.5, 0);
 	colored->group->addChild(cube1);
+	cube2 = gamo::Cubes::mcGrass();
+	cube2->position = glm::vec3(-1.5, -1.5, 0);
 	textured->group->addChild(cube2);
+	cube3 = gamo::Cubes::mcTotal();
+	cube3->position = glm::vec3(1.5, -1.5, 0);
 	toyed->group->addChild(cube3);
 
-	cube4 = new gamo::GameObject<gamo::VertexP3N3T2>();
-	cube4->addComponent(new gamo::ModelComponent("res/models/car/honda_jazz.obj", 0.01));
-	cube4->addComponent(new gamo::SpinComponent<gamo::VertexP3N3T2>(glm::vec3(0, 10, 0)));
-	cube4->position = glm::vec3(0, 1, 0);
-	textured->group->addChild(cube4);
+	for (std::pair<std::string, double> modelInfo : modelInfos) {
+		gamo::GameObject<gamo::VertexP3N3T2>* mod = new gamo::GameObject<gamo::VertexP3N3T2>();
+		mod->addComponent(new gamo::ModelComponent(modelInfo.first, modelInfo.second));
+		mod->addComponent(new gamo::SpinComponent<gamo::VertexP3N3T2>(glm::vec3(0, 10, 0)));
+		mod->position = glm::vec3(0, -0.5, 0);
+		models.push_back(mod);
+	}
+	textured->group->addChild(models[modelIndex]);
 
 	for (std::string shaderName : colorShaderNames) {
 		gamo::Shader<gamo::VertexP3N3C4>* shap = new gamo::Shader<gamo::VertexP3N3C4>();
@@ -145,18 +160,17 @@ void init()
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 		glEnable(GL_DEBUG_OUTPUT);
 	}
-
-	rotation = 0;
-	lastTimeMillis = glutGet(GLUT_ELAPSED_TIME);
-	
-	cube2->position = glm::vec3(1.5, 0, 0);
-	cube3->position = glm::vec3(-1.5, 0, 0);
 }
 
 void build() {
-	std::cout << "Building started.." << std::endl;
-	scene.build();
-	std::cout << "Done building!" << std::endl;
+	while (true) {
+		if (scene.shouldRebuild()) {
+			std::cout << "Building started.." << std::endl;
+			scene.build();
+			std::cout << "Done building!" << std::endl;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
 }
 
 void display() {
@@ -164,7 +178,7 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	projectionMatrix = glm::perspective(80.0f, screenSize.x / (float)screenSize.y, 0.01f, 100.0f);
-	viewMatrix = glm::lookAt(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, -1, 0));
+	viewMatrix = glm::lookAt(glm::vec3(0, 0, 3), glm::vec3(0, 0, 0), glm::vec3(0, -1, 0));
 
 	colored->shader = colorShaders[colorShaderIndex];
 	colored->shader->wireframe = wireFrame;
@@ -186,6 +200,12 @@ void reshape(int newWidth, int newHeight) {
 void keyboard(unsigned char key, int x, int y) {
 	if (key == VK_ESCAPE)
 		glutLeaveMainLoop();
+
+	if (key == 'm') {
+		textured->group->removeChild(models[modelIndex]);
+		modelIndex = (modelIndex + 1) % models.size();
+		textured->group->addChild(models[modelIndex]);
+	}
 
 	if (key == 'c')
 		colorShaderIndex = (colorShaderIndex + 1) % colorShaders.size();
@@ -224,7 +244,7 @@ int main(int argc, char* argv[]) {
 	init();
 
 	std::thread buildThread(build);
-	//build();
+	lastTimeMillis = glutGet(GLUT_ELAPSED_TIME);
 	
 	glutMainLoop();
 
