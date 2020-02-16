@@ -7,14 +7,14 @@
 #include <fstream>
 #pragma comment(lib, "glew32.lib")
 
+#include "components/modelcomponent.h"
 #include "components/primitivedrawcomponent.h"
+#include "components/spincomponent.h"
 #include "objects/gameobject.h"
 #include "objects/cube.h"
 #include "objects/pane.h"
 #include "scenes/gamescene.h"
 #include "shaders/texture.h"
-
-#include "Shader.h"
 
 std::map<std::string, gamo::Texture*> gamo::Texture::cache;
 
@@ -25,6 +25,7 @@ gamo::GameObject<gamo::VertexP3N3C4>* cube1;
 
 gamo::ShaderObjectPair<gamo::VertexP3N3T2>* textured;
 gamo::GameObject<gamo::VertexP3N3T2>* cube2;
+gamo::GameObject<gamo::VertexP3N3T2>* cube4;
 
 gamo::ShaderObjectPair<gamo::VertexP3N3T2>* toyed;
 gamo::GameObject<gamo::VertexP3N3T2>* cube3;
@@ -100,6 +101,12 @@ void init()
 	colored->group->addChild(cube1);
 	textured->group->addChild(cube2);
 	toyed->group->addChild(cube3);
+
+	cube4 = new gamo::GameObject<gamo::VertexP3N3T2>();
+	cube4->addComponent(new gamo::ModelComponent("res/models/car/honda_jazz.obj", 0.01));
+	cube4->addComponent(new gamo::SpinComponent<gamo::VertexP3N3T2>(glm::vec3(0, 10, 0)));
+	cube4->position = glm::vec3(0, 1, 0);
+	textured->group->addChild(cube4);
 
 	for (std::string shaderName : colorShaderNames) {
 		gamo::Shader<gamo::VertexP3N3C4>* shap = new gamo::Shader<gamo::VertexP3N3C4>();
