@@ -20,7 +20,9 @@ std::map<std::string, gamo::Texture*> gamo::Texture::cache;
 
 // Scene + objects.
 gamo::GameScene scene;
+
 gamo::ShaderObjectPair<gamo::VertexP3N3C4>* colored;
+gamo::GameObject<gamo::VertexP3N3C4>* camera;
 gamo::GameObject<gamo::VertexP3N3C4>* cube1;
 
 gamo::ShaderObjectPair<gamo::VertexP3N3T2>* textured;
@@ -78,6 +80,7 @@ bool wireFrame = false;
 glm::mat4 projectionMatrix;
 glm::mat4 viewMatrix;
 
+std::map<char, bool> keys;
 glm::ivec2 screenSize;
 float rotation;
 int lastTimeMillis;
@@ -104,6 +107,8 @@ void init() {
 	scene.pairs.push_back(colored);
 	scene.pairs.push_back(textured);
 	scene.pairs.push_back(toyed);
+	camera = new gamo::GameObject<gamo::VertexP3N3C4>();
+	colored->group->addChild(camera);
 	cube1 = gamo::Cubes::colored();
 	cube1->position = glm::vec3(0, -1.5, 0);
 	colored->group->addChild(cube1);
@@ -178,7 +183,7 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	projectionMatrix = glm::perspective(80.0f, screenSize.x / (float)screenSize.y, 0.01f, 100.0f);
-	viewMatrix = glm::lookAt(glm::vec3(0, 0, 3), glm::vec3(0, 0, 0), glm::vec3(0, -1, 0));
+	viewMatrix = glm::lookAt(camera->position, camera->position + glm::vec3(0, 0, -1), glm::vec3(0, -1, 0));
 
 	colored->shader = colorShaders[colorShaderIndex];
 	colored->shader->wireframe = wireFrame;
@@ -197,7 +202,13 @@ void reshape(int newWidth, int newHeight) {
 	glutPostRedisplay();
 }
 
+void keyboardUp(unsigned char key, int x, int y) {
+	keys[key] = false;
+}
+
 void keyboard(unsigned char key, int x, int y) {
+	keys[key] = true;
+
 	if (key == VK_ESCAPE)
 		glutLeaveMainLoop();
 
@@ -207,16 +218,16 @@ void keyboard(unsigned char key, int x, int y) {
 		textured->group->addChild(models[modelIndex]);
 	}
 
-	if (key == 'c')
+	if (key == 'u')
 		colorShaderIndex = (colorShaderIndex + 1) % colorShaders.size();
 
-	if (key == 't')
+	if (key == 'i')
 		textureShaderIndex = (textureShaderIndex + 1) % textureShaders.size();
 
-	if (key == 's')
+	if (key == 'o')
 		toyShaderIndex = (toyShaderIndex + 1) % toyShaders.size();
 
-	if (key == 'w')
+	if (key == 'p')
 		wireFrame = !wireFrame;
 }
 
@@ -225,6 +236,23 @@ void update() {
 	int elapsedMillis = timeMillis - lastTimeMillis;
 	lastTimeMillis = timeMillis;
 	
+	glm::vec3 veloc(0, 0, 0);
+	if (keys['w'])
+		veloc += glm::vec3(0, 0, -1);
+
+	if (keys['a'])
+		veloc += glm::vec3(-1, 0, 0);
+
+	if (keys['s'])
+		veloc += glm::vec3(0, 0, 1);
+
+	if (keys['d'])
+		veloc += glm::vec3(1, 0, 0);
+
+	glm::normalize(veloc);
+	veloc *= 0.01;
+	camera->position += veloc;
+
 	scene.update(elapsedMillis / 1000.0f);
 
 	glutPostRedisplay();
@@ -239,6 +267,7 @@ int main(int argc, char* argv[]) {
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
+	glutKeyboardUpFunc(keyboardUp);
 	glutIdleFunc(update);
 
 	init();
