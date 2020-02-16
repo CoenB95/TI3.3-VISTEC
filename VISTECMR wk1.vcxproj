@@ -83,10 +83,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ObjModel.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ObjModel.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\p3n3c4-gray.fs" />
