@@ -153,6 +153,12 @@ void init()
 	cube3->position = glm::vec3(-1.5, 0, 0);
 }
 
+void build() {
+	std::cout << "Building started.." << std::endl;
+	scene.build();
+	std::cout << "Done building!" << std::endl;
+}
+
 void display() {
 	glViewport(0, 0, screenSize.x, screenSize.y);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -171,15 +177,13 @@ void display() {
 	glutSwapBuffers();
 }
 
-void reshape(int newWidth, int newHeight)
-{
+void reshape(int newWidth, int newHeight) {
 	screenSize.x = newWidth;
 	screenSize.y = newHeight;
 	glutPostRedisplay();
 }
 
-void keyboard(unsigned char key, int x, int y)
-{
+void keyboard(unsigned char key, int x, int y) {
 	if (key == VK_ESCAPE)
 		glutLeaveMainLoop();
 
@@ -196,8 +200,7 @@ void keyboard(unsigned char key, int x, int y)
 		wireFrame = !wireFrame;
 }
 
-void update()
-{
+void update() {
 	int timeMillis = glutGet(GLUT_ELAPSED_TIME);
 	int elapsedMillis = timeMillis - lastTimeMillis;
 	lastTimeMillis = timeMillis;
@@ -207,11 +210,7 @@ void update()
 	glutPostRedisplay();
 }
 
-
-
-
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 	glutInit(&argc, argv);
 	glutInitWindowSize(800, 450);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
@@ -223,7 +222,9 @@ int main(int argc, char* argv[])
 	glutIdleFunc(update);
 
 	init();
-	
+
+	std::thread buildThread(build);
+	//build();
 	
 	glutMainLoop();
 
