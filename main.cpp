@@ -7,10 +7,12 @@
 #include <fstream>
 #pragma comment(lib, "glew32.lib")
 
+#include "objects/gameobject.h"
+#include "components/followcomponent.h"
 #include "components/modelcomponent.h"
 #include "components/primitivedrawcomponent.h"
+#include "components/smoothcomponent.h"
 #include "components/spincomponent.h"
-#include "objects/gameobject.h"
 #include "objects/cube.h"
 #include "objects/pane.h"
 #include "scenes/gamescene.h"
@@ -27,6 +29,7 @@ gamo::GameObject<gamo::VertexP3N3C4>* cube1;
 
 gamo::ShaderObjectPair<gamo::VertexP3N3T2>* textured;
 gamo::GameObject<gamo::VertexP3N3T2>* cube2;
+gamo::GameObject<gamo::VertexP3N3T2>* player;
 
 gamo::ShaderObjectPair<gamo::VertexP3N3T2>* toyed;
 gamo::GameObject<gamo::VertexP3N3T2>* cube3;
@@ -34,12 +37,12 @@ gamo::GameObject<gamo::VertexP3N3T2>* cube3;
 // Models.
 std::vector<gamo::GameObject<gamo::VertexP3N3T2>*> models;
 int modelIndex = 0;
-std::vector<std::pair<std::string, double>> modelInfos = {
-	{ "res/models/car/honda_jazz.obj", 0.01 },
-	{ "res/models/ship/shipA_OBJ.obj", 0.02 },
-	{ "res/models/normalstuff/normaltest.obj", 0.4 },
-	{ "res/models/normalstuff/normaltest2.obj", 0.4 },
-	{ "res/models/bloemetje/PrimroseP.obj", 1.0 }
+std::vector<std::pair<std::string, float>> modelInfos = {
+	{ "res/models/car/honda_jazz.obj", 0.01f },
+	{ "res/models/ship/shipA_OBJ.obj", 0.02f },
+	{ "res/models/normalstuff/normaltest.obj", 0.4f },
+	{ "res/models/normalstuff/normaltest2.obj", 0.4f },
+	{ "res/models/bloemetje/PrimroseP.obj", 1.0f }
 };
 
 // Color shaders.
@@ -107,22 +110,26 @@ void init() {
 	scene.pairs.push_back(colored);
 	scene.pairs.push_back(textured);
 	scene.pairs.push_back(toyed);
+	
+	player = new gamo::GameObject<gamo::VertexP3N3T2>();
 	camera = new gamo::GameObject<gamo::VertexP3N3C4>();
-	colored->group->addChild(camera);
+	camera->addComponent(new gamo::FollowComponent(player, true, false, false));
+	camera->addComponent(new gamo::SmoothComponent(0.9f, false, false, true));
+
 	cube1 = gamo::Cubes::colored();
 	cube1->position = glm::vec3(0, -1.5, 0);
-	colored->group->addChild(cube1);
+	colored->group->addChildren({ cube1, camera });
 	cube2 = gamo::Cubes::mcGrass();
 	cube2->position = glm::vec3(-1.5, -1.5, 0);
-	textured->group->addChild(cube2);
+	textured->group->addChildren({ cube2, player });
 	cube3 = gamo::Cubes::mcTotal();
 	cube3->position = glm::vec3(1.5, -1.5, 0);
 	toyed->group->addChild(cube3);
 
-	for (std::pair<std::string, double> modelInfo : modelInfos) {
+	for (std::pair<std::string, float> modelInfo : modelInfos) {
 		gamo::GameObject<gamo::VertexP3N3T2>* mod = new gamo::GameObject<gamo::VertexP3N3T2>();
 		mod->addComponent(new gamo::ModelComponent(modelInfo.first, modelInfo.second));
-		mod->addComponent(new gamo::SpinComponent<gamo::VertexP3N3T2>(glm::vec3(0, 10, 0)));
+		mod->addComponent(new gamo::SpinComponent(glm::vec3(0, 10, 0)));
 		mod->position = glm::vec3(0, -0.5, 0);
 		models.push_back(mod);
 	}
@@ -251,7 +258,7 @@ void update() {
 
 	glm::normalize(veloc);
 	veloc *= 0.01;
-	camera->position += veloc;
+	player->position += veloc;
 
 	scene.update(elapsedMillis / 1000.0f);
 
