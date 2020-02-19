@@ -59,6 +59,7 @@ std::vector<std::string> colorShaderNames = {
 std::vector<gamo::Shader<gamo::VertexP3N3T2>*> textureShaders;
 int textureShaderIndex = 0;
 std::vector<std::string> textureShaderNames = {
+	"res/shaders/p3n3t2-toon",
 	"res/shaders/p3n3t2-simple",
 	"res/shaders/p3n3t2-specular",
 	"res/shaders/p3n3t2-speculartex",
@@ -101,6 +102,7 @@ void init() {
 	glewInit();
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
 	glClearColor(1, 0.7f, 0.3f, 1.0f);
 
 	scene = gamo::GameScene();
@@ -139,7 +141,7 @@ void init() {
 		gamo::Shader<gamo::VertexP3N3C4>* shap = new gamo::Shader<gamo::VertexP3N3C4>();
 		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs", gamo::AttribArrays::p3n3c4("a_position", "a_normal", "a_color"), {
 			new gamo::Matrix4Uniform("modelViewProjectionMatrix", [shap]() { return projectionMatrix * viewMatrix * shap->modelMatrix; }),
-			new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(viewMatrix * shap->modelMatrix))); }),
+			new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(shap->modelMatrix))); }),
 			new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })
 			});
 		colorShaders.push_back(shap);
@@ -149,7 +151,7 @@ void init() {
 		gamo::Shader<gamo::VertexP3N3T2>* shap = new gamo::Shader<gamo::VertexP3N3T2>();
 		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs", gamo::AttribArrays::p3n3t2("a_position", "a_normal", "a_texcoord"), {
 			new gamo::Matrix4Uniform("modelViewProjectionMatrix", [shap]() { return projectionMatrix * viewMatrix * shap->modelMatrix; }),
-			new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(viewMatrix * shap->modelMatrix))); }),
+			new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(shap->modelMatrix))); }),
 			new gamo::IntegerUniform("s_texture", []() { return 0; }),
 			new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })
 			});
@@ -160,7 +162,7 @@ void init() {
 		gamo::Shader<gamo::VertexP3N3T2>* shap = new gamo::Shader<gamo::VertexP3N3T2>();
 		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs", gamo::AttribArrays::p3n3t2("a_position", "a_normal", "a_texcoord"), {
 			new gamo::Matrix4Uniform("modelViewProjectionMatrix", [shap]() { return projectionMatrix * viewMatrix * shap->modelMatrix; }),
-			new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(viewMatrix * shap->modelMatrix))); }),
+			new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(shap->modelMatrix))); }),
 			new gamo::IntegerUniform("s_texture", []() { return 0; }),
 			new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })
 			});
