@@ -5,7 +5,9 @@ uniform float time;
 
 in vec2 texCoord;
 
+out vec4 fragColor;
+
 void main()
 {
-	gl_FragColor = texture2D(s_texture, texCoord + vec2(time,0));
+	fragColor = texture2D(s_texture, texCoord + vec2(time,0));
 }

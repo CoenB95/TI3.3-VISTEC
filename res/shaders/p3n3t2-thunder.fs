@@ -1,7 +1,11 @@
+#version 330
+
 uniform sampler2D s_texture;
 uniform float time;
 
 in vec2 texCoord;
+
+out vec4 fragColor;
 
 float hash( in vec2 p ) 
 {
@@ -89,5 +93,5 @@ void main()
     c=exp(-5.*c);
     vec3 col;
     col=clamp(1.7*vec3(0.8,.7,.9)*c,0.,1.);
-    gl_FragColor = vec4(col,1.0);
+    fragColor = vec4(col, 1.0);
 }

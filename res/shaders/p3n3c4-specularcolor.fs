@@ -3,6 +3,8 @@
 in vec3 color;
 in vec3 normal;
 
+out vec4 fragColor;
+
 void main()
 {
 	vec3 lightDirection = normalize(vec3(1,1,1));
@@ -18,6 +20,5 @@ void main()
 
 	float factor = ambient + diffuse + specular;
 
-
-	gl_FragColor = color * vec4(factor,factor,factor,1.0);
+	fragColor = vec4(color * factor, 1.0);
 }
