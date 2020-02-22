@@ -1,4 +1,5 @@
 # Ignore Visual Studio files
 .vs/
+*.vcxproj.user
 Debug/
 Release/
