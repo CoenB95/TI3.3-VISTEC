@@ -17,7 +17,8 @@ void main()
 	vec3 lightDirection = normalize(viewLightDirection);
 	vec3 eyeDirection = normalize(viewEyeDirection);
 	//vec3 normal = normalize(vec3(texture2D(s_bumpmap, texCoord)) * 2.0 - vec3(1.0));
-	vec3 normal = normal2;
+	//vec3 normal = normal2;
+	vec3 normal = vec3(0.0, 0.0, 1.0);
 
 	float ambient = 0.2;
 	float diffuse = max(dot(normal, lightDirection), ambient);
