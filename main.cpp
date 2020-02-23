@@ -27,15 +27,15 @@ gamo::ShaderObjectPair<gamo::VertexP3N3C4>* colored;
 gamo::GameObject<gamo::VertexP3N3C4>* camera;
 gamo::GameObject<gamo::VertexP3N3C4>* cube1;
 
-gamo::ShaderObjectPair<gamo::VertexP3N3T2>* textured;
+gamo::ShaderObjectPair<gamo::VertexP3N3T2B3>* textured;
 gamo::GameObject<gamo::VertexP3N3T2>* cube2;
-gamo::GameObject<gamo::VertexP3N3T2>* player;
 
 gamo::ShaderObjectPair<gamo::VertexP3N3T2>* toyed;
 gamo::GameObject<gamo::VertexP3N3T2>* cube3;
+gamo::GameObject<gamo::VertexP3N3T2>* player;
 
 // Models.
-std::vector<gamo::GameObject<gamo::VertexP3N3T2>*> models;
+std::vector<gamo::GameObject<gamo::VertexP3N3T2B3>*> models;
 int modelIndex = 0;
 std::vector<std::pair<std::string, float>> modelInfos = {
 	{ "res/models/car/honda_jazz.obj", 0.01f },
@@ -56,9 +56,10 @@ std::vector<std::string> colorShaderNames = {
 };
 
 // Texture shaders.
-std::vector<gamo::Shader<gamo::VertexP3N3T2>*> textureShaders;
+std::vector<gamo::Shader<gamo::VertexP3N3T2B3>*> textureShaders;
 int textureShaderIndex = 0;
 std::vector<std::string> textureShaderNames = {
+	"res/shaders/p3n3t2b3-bump",
 	"res/shaders/p3n3t2-toon",
 	"res/shaders/p3n3t2-simple",
 	"res/shaders/p3n3t2-specular",
@@ -107,7 +108,7 @@ void init() {
 
 	scene = gamo::GameScene();
 	colored = new gamo::ShaderObjectPair<gamo::VertexP3N3C4>(new gamo::GameObject<gamo::VertexP3N3C4>("coloredGroup"), nullptr);
-	textured = new gamo::ShaderObjectPair<gamo::VertexP3N3T2>(new gamo::GameObject<gamo::VertexP3N3T2>("texturedGroup"), nullptr);
+	textured = new gamo::ShaderObjectPair<gamo::VertexP3N3T2B3>(new gamo::GameObject<gamo::VertexP3N3T2B3>("texturedGroup"), nullptr);
 	toyed = new gamo::ShaderObjectPair<gamo::VertexP3N3T2>(new gamo::GameObject<gamo::VertexP3N3T2>("shadertoyGroup"), nullptr);
 	scene.pairs.push_back(colored);
 	scene.pairs.push_back(textured);
@@ -129,7 +130,7 @@ void init() {
 	toyed->group->addChild(cube3);
 
 	for (std::pair<std::string, float> modelInfo : modelInfos) {
-		gamo::GameObject<gamo::VertexP3N3T2>* mod = new gamo::GameObject<gamo::VertexP3N3T2>();
+		gamo::GameObject<gamo::VertexP3N3T2B3>* mod = new gamo::GameObject<gamo::VertexP3N3T2B3>();
 		mod->addComponent(new gamo::ModelComponent(modelInfo.first, modelInfo.second));
 		mod->addComponent(new gamo::SpinComponent(glm::vec3(0, 10, 0)));
 		mod->position = glm::vec3(0, -0.5, 0);
@@ -148,11 +149,14 @@ void init() {
 	}
 
 	for (std::string shaderName : textureShaderNames) {
-		gamo::Shader<gamo::VertexP3N3T2>* shap = new gamo::Shader<gamo::VertexP3N3T2>();
-		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs", gamo::AttribArrays::p3n3t2("a_position", "a_normal", "a_texcoord"), {
+		gamo::Shader<gamo::VertexP3N3T2B3>* shap = new gamo::Shader<gamo::VertexP3N3T2B3>();
+		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs", gamo::AttribArrays::p3n3t2b3("a_position", "a_normal", "a_texcoord", "a_tangent"), {
 			new gamo::Matrix4Uniform("modelViewProjectionMatrix", [shap]() { return projectionMatrix * viewMatrix * shap->modelMatrix; }),
+			new gamo::Matrix4Uniform("modelViewMatrix", [shap]() { return viewMatrix * shap->modelMatrix; }),
+			new gamo::Matrix4Uniform("projectionMatrix", [shap]() { return projectionMatrix; }),
 			new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(shap->modelMatrix))); }),
 			new gamo::IntegerUniform("s_texture", []() { return 0; }),
+			new gamo::IntegerUniform("s_bumpmap", []() { return 1; }),
 			new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })
 			});
 		textureShaders.push_back(shap);
@@ -257,6 +261,12 @@ void update() {
 
 	if (keys['d'])
 		veloc += glm::vec3(1, 0, 0);
+
+	if (keys['z'])
+		veloc += glm::vec3(0, -1, 0);
+
+	if (keys[VK_SPACE])
+		veloc += glm::vec3(0, 1, 0);
 
 	glm::normalize(veloc);
 	veloc *= 0.01;

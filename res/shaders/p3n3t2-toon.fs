@@ -13,19 +13,19 @@ void main()
 {
 	vec4 color = texture2D(s_texture, texCoord);
 	
+	vec3 lightDirection = normalize(vec3(1.0, 1.0, 1.0));
+	vec3 eyeDirection = normalize(vec3(0, 0, 1));
 	vec3 modelNormal = normalize(normal);
-	vec3 lightDirection = normalize(vec3(1, 1, 1));
-	vec3 viewDirection = vec3(0, 0, 1);
-	float shininess = 100.0;
 
 	float ambient = 0.2;
-	float diffuse = 0.8 * dot(modelNormal, lightDirection);
+	float diffuse = max(dot(modelNormal, lightDirection), ambient);
+	vec4 diffuseColor = color * ceil(diffuse * divisions) / divisions;
 
 	vec3 reflection = reflect(-lightDirection, modelNormal);
 
-	float specular = pow(max(0.0, dot(reflection, viewDirection)), shininess);
+	float shininess = 100.0;
+	float specular = max(pow(dot(reflection, eyeDirection), shininess), 0.0);
+	vec4 specularColor = vec4(1.0) * floor(specular * divisions) / divisions;
 
-	float factor = floor((ambient + diffuse + specular) * divisions) / divisions;
-
-	fragColor = color * vec4(factor, factor, factor, 1.0);
+	fragColor = diffuseColor + specularColor;
 }
