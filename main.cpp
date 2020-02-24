@@ -59,6 +59,7 @@ std::vector<std::string> colorShaderNames = {
 std::vector<gamo::Shader<gamo::VertexP3N3T2B3>*> textureShaders;
 int textureShaderIndex = 0;
 std::vector<std::string> textureShaderNames = {
+	"res/shaders/p3n3t2-brick",
 	"res/shaders/p3n3t2b3-bump",
 	"res/shaders/p3n3t2-toon",
 	"res/shaders/p3n3t2-simple",
