@@ -15,6 +15,8 @@ void main()
 {
 	texCoord = a_texcoord;
 	normal = normalMatrix * a_normal;
-	gl_Position = modelViewProjectionMatrix * vec4(a_position + 
-		1.0 * vec3(sin(time + a_position.y), 0.25 * sin(a_position.y*1.24) * cos(time*1.432 + a_position.x), 0),1);
+	gl_Position = modelViewProjectionMatrix * vec4(a_position + vec3(
+		sin(time + a_position.y * 20) * 0.1,
+		0.0,
+		cos(time + a_position.y * 20) * 0.1), 1.0);
 }
