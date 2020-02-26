@@ -89,7 +89,8 @@ std::vector<std::string> toyShaderNames = {
 std::vector<gamo::Shader<gamo::VertexP3N3T2>*> postShaders;
 int postShaderIndex = 0;
 std::vector<std::string> postShaderNames = {
-	"res/shaders/p3n3t2-simple"
+	"res/shaders/p3n3t2-simple",
+	"res/shaders/p3n3t2-texturewobble"
 };
 
 // Wireframe (bool)
@@ -143,7 +144,7 @@ void init() {
 	toyed->group->addChild(cube3);
 
 	postProcessingPane = new gamo::GameObject<gamo::VertexP3N3T2>();
-	postProcessingPane->addComponent(new gamo::TexturedPaneBuildComponent(glm::vec2(1, 1)));
+	postProcessingPane->addComponent(new gamo::TexturedPaneBuildComponent(glm::vec2(1, 1), glm::vec2(3, 3)));
 	postProcessingPane->addComponent(new gamo::TextureDrawComponent(fbo->texture));
 	postProcessingPane->build();
 
@@ -248,6 +249,7 @@ void display() {
 	projectionMatrix = glm::identity<glm::mat4>();
 	viewMatrix = glm::identity<glm::mat4>();
 
+	postShaders[postShaderIndex]->use();
 	postProcessingPane->draw(postShaders[postShaderIndex]);
 
 	glutSwapBuffers();
