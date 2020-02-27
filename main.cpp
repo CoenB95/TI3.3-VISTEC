@@ -90,7 +90,9 @@ std::vector<gamo::Shader<gamo::VertexP3N3T2>*> postShaders;
 int postShaderIndex = 0;
 std::vector<std::string> postShaderNames = {
 	"res/shaders/p3n3t2-simple",
-	"res/shaders/p3n3t2-texturewobble"
+	"res/shaders/p3n3t2-texturewobble",
+	"res/shaders/p3n3t2-blur",
+	"res/shaders/p3n3t2-edges"
 };
 
 // Wireframe (bool)
