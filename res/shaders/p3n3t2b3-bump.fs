@@ -16,9 +16,7 @@ void main()
 	
 	vec3 lightDirection = normalize(viewLightDirection);
 	vec3 eyeDirection = normalize(viewEyeDirection);
-	//vec3 normal = normalize(vec3(texture2D(s_bumpmap, texCoord)) * 2.0 - vec3(1.0));
-	//vec3 normal = normal2;
-	vec3 normal = vec3(0.0, 0.0, 1.0);
+	vec3 normal = normalize(vec3(texture2D(s_bumpmap, texCoord)) * 2.0 - vec3(1.0));
 
 	float ambient = 0.2;
 	float diffuse = max(dot(normal, lightDirection), ambient);
@@ -30,8 +28,5 @@ void main()
 	float specular = max(pow(dot(reflection, eyeDirection), shininess), 0.0);
 	vec4 specularColor = vec4(1.0) * specular;
 
-	fragColor = vec4(lightDirection, 1.0);//diffuseColor + specularColor;
-
-	if (dot(normal, lightDirection) > 0.9)
-		fragColor = vec4(0.0, 1.0, 1.0, 1.0);
+	fragColor = diffuseColor + specularColor;
 }

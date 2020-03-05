@@ -23,7 +23,6 @@ void main()
 	normal2 = normalMatrix * a_normal;
 
 	vec3 viewVertexBitangent = cross(viewVertexNormal, viewVertexTangent);
-	//vec3 viewVertexBitangent = cross(viewVertexTangent, viewVertexNormal);
 
 	mat3 TBN = transpose(mat3(
 		viewVertexTangent,
@@ -31,11 +30,11 @@ void main()
 		viewVertexNormal
 	));
 
-	vec3 viewLightPosition = vec3(0.0, 0.0, 1.0);//vec3(0.0, 0.0, 1.0); - viewVertexPosition;
-	viewLightDirection = TBN * viewLightPosition;//vec3(dot(viewLightPosition, viewVertexTangent), dot(viewLightPosition, viewVertexBitangent), dot(viewLightPosition, viewVertexNormal));
+	vec3 viewLightPosition = vec3(0.0, 0.0, 1.0); - viewVertexPosition;
+	viewLightDirection = TBN * viewLightPosition;
 
-	vec3 viewEyePosition = vec3(0.0, 0.0, 1.0);//-viewVertexPosition;
-	viewEyeDirection = /*TBN **/ viewEyePosition;//vec3(dot(viewEyePosition, viewVertexTangent), dot(viewEyePosition, viewVertexBitangent), dot(viewEyePosition, viewVertexNormal));
+	vec3 viewEyePosition = -viewVertexPosition;
+	viewEyeDirection = TBN * viewEyePosition;
 
 	texCoord = a_texcoord;
 
