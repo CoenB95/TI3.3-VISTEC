@@ -26,13 +26,19 @@ std::map<std::string, gamo::Texture*> gamo::Texture::cache;
 gamo::Fbo* fbo;
 gamo::GameScene* scene;
 
+// Group for colored objects (P3 N3 C4)
 gamo::ShaderObjectPair<gamo::VertexP3N3C4>* colored;
 gamo::GameObject<gamo::VertexP3N3C4>* camera;
 gamo::GameObject<gamo::VertexP3N3C4>* cube1;
 
-gamo::ShaderObjectPair<gamo::VertexP3N3T2B3>* textured;
+// Group for models (textured + bump: P3 N3 T2 B3)
+gamo::ShaderObjectPair<gamo::VertexP3N3T2B3>* modeled;
+
+// Group for textured objects (P3 N3 T2)
+gamo::ShaderObjectPair<gamo::VertexP3N3T2>* textured;
 gamo::GameObject<gamo::VertexP3N3T2>* cube2;
 
+// Group for shadertoy textured objects (P3 N3 T2)
 gamo::ShaderObjectPair<gamo::VertexP3N3T2>* toyed;
 gamo::GameObject<gamo::VertexP3N3T2>* cube3;
 gamo::GameObject<gamo::VertexP3N3T2>* player;
@@ -61,7 +67,8 @@ std::vector<std::string> colorShaderNames = {
 };
 
 // Texture shaders.
-std::vector<gamo::Shader<gamo::VertexP3N3T2B3>*> textureShaders;
+std::vector<gamo::Shader<gamo::VertexP3N3T2B3>*> modelShaders;
+std::vector<gamo::Shader<gamo::VertexP3N3T2>*> textureShaders;
 int textureShaderIndex = 0;
 std::vector<std::string> textureShaderNames = {
 	"res/shaders/p3n3t2-brick",
@@ -115,6 +122,19 @@ void onDebug(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei len
 	std::cout << message << std::endl;
 }
 
+template<class T>
+std::vector<gamo::Uniform*> defaultUniforms(gamo::Shader<T>* shap) {
+	return {
+		new gamo::Matrix4Uniform("modelViewProjectionMatrix", [shap]() { return projectionMatrix * viewMatrix * shap->modelMatrix; }),
+		new gamo::Matrix4Uniform("modelViewMatrix", [shap]() { return viewMatrix * shap->modelMatrix; }),
+		new gamo::Matrix4Uniform("projectionMatrix", [shap]() { return projectionMatrix; }),
+		new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(shap->modelMatrix))); }),
+		new gamo::IntegerUniform("s_texture", []() { return 0; }),
+		new gamo::IntegerUniform("s_bumpmap", []() { return 1; }),
+		new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })
+	};
+}
+
 void init() {
 	glewInit();
 	glEnable(GL_DEPTH_TEST);
@@ -124,9 +144,11 @@ void init() {
 	fbo = new gamo::Fbo(4096, 4096);
 	scene = new gamo::GameScene();
 	colored = new gamo::ShaderObjectPair<gamo::VertexP3N3C4>(new gamo::GameObject<gamo::VertexP3N3C4>("coloredGroup"), nullptr);
-	textured = new gamo::ShaderObjectPair<gamo::VertexP3N3T2B3>(new gamo::GameObject<gamo::VertexP3N3T2B3>("texturedGroup"), nullptr);
+	modeled = new gamo::ShaderObjectPair<gamo::VertexP3N3T2B3>(new gamo::GameObject<gamo::VertexP3N3T2B3>("modeledGroup"), nullptr);
+	textured = new gamo::ShaderObjectPair<gamo::VertexP3N3T2>(new gamo::GameObject<gamo::VertexP3N3T2>("texturedGroup"), nullptr);
 	toyed = new gamo::ShaderObjectPair<gamo::VertexP3N3T2>(new gamo::GameObject<gamo::VertexP3N3T2>("shadertoyGroup"), nullptr);
 	scene->pairs.push_back(colored);
+	scene->pairs.push_back(modeled);
 	scene->pairs.push_back(textured);
 	scene->pairs.push_back(toyed);
 	
@@ -157,51 +179,40 @@ void init() {
 		mod->position = glm::vec3(0, -0.5, 0);
 		models.push_back(mod);
 	}
-	textured->group->addChild(models[modelIndex]);
+	modeled->group->addChild(models[modelIndex]);
 
 	for (std::string shaderName : colorShaderNames) {
 		gamo::Shader<gamo::VertexP3N3C4>* shap = new gamo::Shader<gamo::VertexP3N3C4>();
-		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs", gamo::AttribArrays::p3n3c4("a_position", "a_normal", "a_color"), {
-			new gamo::Matrix4Uniform("modelViewProjectionMatrix", [shap]() { return projectionMatrix * viewMatrix * shap->modelMatrix; }),
-			new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(shap->modelMatrix))); }),
-			new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })
-			});
+		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs",
+			gamo::AttribArrays::p3n3c4("a_position", "a_normal", "a_color"), defaultUniforms(shap));
 		colorShaders.push_back(shap);
 	}
 
 	for (std::string shaderName : textureShaderNames) {
-		gamo::Shader<gamo::VertexP3N3T2B3>* shap = new gamo::Shader<gamo::VertexP3N3T2B3>();
-		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs", gamo::AttribArrays::p3n3t2b3("a_position", "a_normal", "a_texcoord", "a_tangent"), {
-			new gamo::Matrix4Uniform("modelViewProjectionMatrix", [shap]() { return projectionMatrix * viewMatrix * shap->modelMatrix; }),
-			new gamo::Matrix4Uniform("modelViewMatrix", [shap]() { return viewMatrix * shap->modelMatrix; }),
-			new gamo::Matrix4Uniform("projectionMatrix", [shap]() { return projectionMatrix; }),
-			new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(shap->modelMatrix))); }),
-			new gamo::IntegerUniform("s_texture", []() { return 0; }),
-			new gamo::IntegerUniform("s_bumpmap", []() { return 1; }),
-			new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })
-			});
+		gamo::Shader<gamo::VertexP3N3T2>* shap = new gamo::Shader<gamo::VertexP3N3T2>();
+		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs",
+			gamo::AttribArrays::p3n3t2("a_position", "a_normal", "a_texcoord"), defaultUniforms(shap));
 		textureShaders.push_back(shap);
+	}
+
+	for (std::string shaderName : textureShaderNames) {
+		gamo::Shader<gamo::VertexP3N3T2B3>* shap = new gamo::Shader<gamo::VertexP3N3T2B3>();
+		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs",
+			gamo::AttribArrays::p3n3t2b3("a_position", "a_normal", "a_texcoord", "a_tangent"), defaultUniforms(shap));
+		modelShaders.push_back(shap);
 	}
 
 	for (std::string shaderName : toyShaderNames) {
 		gamo::Shader<gamo::VertexP3N3T2>* shap = new gamo::Shader<gamo::VertexP3N3T2>();
-		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs", gamo::AttribArrays::p3n3t2("a_position", "a_normal", "a_texcoord"), {
-			new gamo::Matrix4Uniform("modelViewProjectionMatrix", [shap]() { return projectionMatrix * viewMatrix * shap->modelMatrix; }),
-			new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(shap->modelMatrix))); }),
-			new gamo::IntegerUniform("s_texture", []() { return 0; }),
-			new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })
-			});
+		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs",
+			gamo::AttribArrays::p3n3t2("a_position", "a_normal", "a_texcoord"), defaultUniforms(shap));
 		toyShaders.push_back(shap);
 	}
 
 	for (std::string shaderName : postShaderNames) {
 		gamo::Shader<gamo::VertexP3N3T2>* shap = new gamo::Shader<gamo::VertexP3N3T2>();
-		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs", gamo::AttribArrays::p3n3t2("a_position", "a_normal", "a_texcoord"), {
-			new gamo::Matrix4Uniform("modelViewProjectionMatrix", [shap]() { return projectionMatrix * viewMatrix * shap->modelMatrix; }),
-			new gamo::Matrix3Uniform("normalMatrix", [shap]() { return glm::transpose(glm::inverse(glm::mat3(shap->modelMatrix))); }),
-			new gamo::IntegerUniform("s_texture", []() { return 0; }),
-			new gamo::FloatUniform("time", []() { return lastTimeMillis / 1000.0f; })
-			});
+		shap->initFromFiles(shaderName + ".vs", shaderName + ".fs",
+			gamo::AttribArrays::p3n3t2("a_position", "a_normal", "a_texcoord"), defaultUniforms(shap));
 		postShaders.push_back(shap);
 	}
 
@@ -226,6 +237,8 @@ void build() {
 void display() {
 	colored->shader = colorShaders[colorShaderIndex];
 	colored->shader->wireframe = wireFrame;
+	modeled->shader = modelShaders[textureShaderIndex];
+	modeled->shader->wireframe = wireFrame;
 	textured->shader = textureShaders[textureShaderIndex];
 	textured->shader->wireframe = wireFrame;
 	toyed->shader = toyShaders[toyShaderIndex];
@@ -274,9 +287,9 @@ void keyboard(unsigned char key, int x, int y) {
 		glutLeaveMainLoop();
 
 	if (key == 'm') {
-		textured->group->removeChild(models[modelIndex]);
+		modeled->group->removeChild(models[modelIndex]);
 		modelIndex = (modelIndex + 1) % models.size();
-		textured->group->addChild(models[modelIndex]);
+		modeled->group->addChild(models[modelIndex]);
 	}
 
 	if (key == 'u')
