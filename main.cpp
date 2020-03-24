@@ -71,16 +71,16 @@ std::vector<gamo::Shader<gamo::VertexP3N3T2B3>*> modelShaders;
 std::vector<gamo::Shader<gamo::VertexP3N3T2>*> textureShaders;
 int textureShaderIndex = 0;
 std::vector<std::string> textureShaderNames = {
-	"res/shaders/p3n3t2-brick",
-	"res/shaders/p3n3t2b3-bump",
-	"res/shaders/p3n3t2-toon",
 	"res/shaders/p3n3t2-simple",
 	"res/shaders/p3n3t2-specular",
 	"res/shaders/p3n3t2-speculartex",
 	"res/shaders/p3n3t2-gray",
 	"res/shaders/p3n3t2-textureanim",
 	"res/shaders/p3n3t2-vertexanim",
-	"res/shaders/p3n3t2-multitex"
+	"res/shaders/p3n3t2-multitex",
+	"res/shaders/p3n3t2-toon",
+	"res/shaders/p3n3t2-brick",
+	"res/shaders/p3n3t2b3-bump",
 };
 
 // Shadertoy shaders (texture 0,0 - 1,1).
@@ -100,7 +100,8 @@ std::vector<std::string> postShaderNames = {
 	"res/shaders/p3n3t2-texturewobble",
 	"res/shaders/p3n3t2-blur",
 	"res/shaders/p3n3t2-edges",
-	"res/shaders/p3n3t2-pixels"
+	"res/shaders/p3n3t2-thickedges"
+	"res/shaders/p3n3t2-pixels",
 };
 
 // Wireframe (bool)
