@@ -100,7 +100,7 @@ std::vector<std::string> postShaderNames = {
 	"res/shaders/p3n3t2-texturewobble",
 	"res/shaders/p3n3t2-blur",
 	"res/shaders/p3n3t2-edges",
-	"res/shaders/p3n3t2-thickedges"
+	"res/shaders/p3n3t2-thickedges",
 	"res/shaders/p3n3t2-pixels",
 };
 
